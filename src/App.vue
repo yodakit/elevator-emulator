@@ -3,8 +3,13 @@
     <div class="floor__cell">
       <div
         v-if="floor === i"
-        class="elevator"
-        :style="[moving && {'transform': `translate(0, ${-100 * (floor-i)}px`}]"
+        :class="['elevator', {'waiting': waiting}]"
+        :style="[
+          moving && {
+            transition: `all ${timeout}s linear`,
+            transform: `translate(0, ${translate}px`
+          }
+        ]"
       >
         <div class="elevator__inner"></div>
       </div>
@@ -17,6 +22,7 @@
 </template>
 
 <script>
+import { wait } from './helpers/wait'
 export default {
   name: 'App',
   components: {},
@@ -24,17 +30,24 @@ export default {
     return {
       floors: [6, 5, 4, 3, 2, 1],
       floor: 1,
-      moving: false
+      translate: 0,
+      timeout: 0,
+      moving: false,
+      waiting: false
     }
   },
   methods: {
-    moveElevator (floor) {
-      this.floor = floor;
+    async moveElevator (floor) {
+      const floorDifference = this.floor - floor
       this.moving = true
-      console.log(this.floor);
-      // while(this.floor !== floor) {
-
-      // }
+      this.translate = 100 * floorDifference
+      this.timeout = Math.abs(floorDifference)
+      await wait(this.timeout * 1000)
+      this.moving = false
+      this.waiting = true
+      this.floor = floor
+      await wait(3000)
+      this.waiting = false
     }
   }
 }
@@ -70,9 +83,25 @@ export default {
   width: 100%;
   height: 100%;
   background-color: var(--color-blue);
-  transition: all 1s linear;
-  &-move {
-    transform: translate(0, -100px);
-  }
+}
+.waiting { 
+  animation-name: waiting; 
+  animation-iteration-count: infinite; 
+  animation-timing-function: cubic-bezier(1.0,0,3,1.0); 
+  animation-duration: 0.7s; 
+  -webkit-animation-name: waiting; 
+  -webkit-animation-iteration-count: infinite; 
+  -webkit-animation-timing-function: cubic-bezier(1.0,0,3,1.0); 
+  -webkit-animation-duration: 0.7s; 
+} 
+
+@keyframes waiting { 
+  from { opacity: 1.0; } 
+  to { opacity: 0.3; } 
+}
+
+@-webkit-keyframes waiting { 
+  from { opacity: 1.0; } 
+  to { opacity: 0.3; } 
 }
 </style>
