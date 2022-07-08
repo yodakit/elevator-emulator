@@ -3,7 +3,7 @@
     <div class="floor__cell">
       <div
         v-if="floor === i"
-        :class="['elevator', {'waiting': waiting}]"
+        :class="['elevator', { waiting: waiting }]"
         :style="[
           moving && {
             transition: `all ${timeout}s linear`,
@@ -11,7 +11,22 @@
           }
         ]"
       >
-        <div class="elevator__inner"></div>
+        <div v-if="moving || waiting" class="elevator__inner">
+          <svg
+            :style="translate < 0 && { transform: 'rotate(180deg)' }"
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span>{{ nextFloor }}</span>
+        </div>
       </div>
     </div>
     <div class="floor__btn">
@@ -30,26 +45,30 @@ export default {
     return {
       floors: [6, 5, 4, 3, 2, 1],
       floor: 1,
+      nextFloor: 1,
       translate: 0,
       timeout: 0,
       moving: false,
-      waiting: false
+      waiting: false,
     }
   },
   methods: {
     async moveElevator (floor) {
-      const floorDifference = this.floor - floor
-      this.moving = true
-      this.translate = 100 * floorDifference
-      this.timeout = Math.abs(floorDifference)
-      await wait(this.timeout * 1000)
-      this.moving = false
-      this.waiting = true
-      this.floor = floor
-      await wait(3000)
-      this.waiting = false
+      if (this.floor !== floor) {
+        const floorDifference = this.floor - floor
+        this.nextFloor = floor
+        this.moving = true
+        this.translate = 100 * floorDifference
+        this.timeout = Math.abs(floorDifference)
+        await wait(this.timeout * 1000)
+        this.moving = false
+        this.waiting = true
+        this.floor = floor
+        await wait(3000)
+        this.waiting = false
+      }
     }
-  }
+  },
 }
 </script>
 
@@ -83,25 +102,52 @@ export default {
   width: 100%;
   height: 100%;
   background-color: var(--color-blue);
+  padding-top: 5px;
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 5px;
+    height: 25px;
+    width: 45px;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+    border-radius: 3px;
+    margin: 0 auto;
+    svg {
+      fill: white;
+      width: 40%;
+    }
+    span {
+      color: white;
+    }
+  }
 }
-.waiting { 
-  animation-name: waiting; 
-  animation-iteration-count: infinite; 
-  animation-timing-function: cubic-bezier(1.0,0,3,1.0); 
-  animation-duration: 0.7s; 
-  -webkit-animation-name: waiting; 
-  -webkit-animation-iteration-count: infinite; 
-  -webkit-animation-timing-function: cubic-bezier(1.0,0,3,1.0); 
-  -webkit-animation-duration: 0.7s; 
-} 
-
-@keyframes waiting { 
-  from { opacity: 1.0; } 
-  to { opacity: 0.3; } 
+.waiting {
+  animation-name: waiting;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(1, 0, 3, 1);
+  animation-duration: 0.7s;
+  -webkit-animation-name: waiting;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: cubic-bezier(1, 0, 3, 1);
+  -webkit-animation-duration: 0.7s;
 }
 
-@-webkit-keyframes waiting { 
-  from { opacity: 1.0; } 
-  to { opacity: 0.3; } 
+@keyframes waiting {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.3;
+  }
+}
+
+@-webkit-keyframes waiting {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.3;
+  }
 }
 </style>
