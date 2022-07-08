@@ -31,7 +31,40 @@
     </div>
     <div class="floor__btn">
       <span>{{ i }}</span>
-      <button @click="moveElevator(i)" class="btn">0</button>
+      <button
+        @click="moveElevator(i)"
+        :style="[
+          isWaiting(i) && {
+            'border-color': 'var(--color-orange)'
+          }
+        ]"
+        class="btn"
+      >
+        <svg class="btn__ring" width="18" height="18">
+          <circle
+            :style="[
+              isWaiting(i) && {
+                stroke: 'var(--color-orange)'
+              }
+            ]"
+            class="btn__circle"
+            stroke="var(--color-dark)"
+            stroke-width="1"
+            cx="9"
+            cy="9"
+            r="7"
+            fill="transparent"
+          />
+        </svg>
+        <div
+          :style="[
+            isWaiting(i) && {
+              'background-color': 'var(--color-orange)'
+            }
+          ]"
+          class="btn__inner"
+        ></div>
+      </button>
     </div>
   </div>
 </template>
@@ -50,25 +83,35 @@ export default {
       timeout: 0,
       moving: false,
       waiting: false,
+      queue: []
     }
   },
   methods: {
     async moveElevator (floor) {
-      if (this.floor !== floor) {
-        const floorDifference = this.floor - floor
-        this.nextFloor = floor
-        this.moving = true
-        this.translate = 100 * floorDifference
-        this.timeout = Math.abs(floorDifference)
-        await wait(this.timeout * 1000)
-        this.moving = false
-        this.waiting = true
-        this.floor = floor
-        await wait(3000)
-        this.waiting = false
+      this.queue.push(floor)
+      if (!this.moving && !this.waiting) {
+        while (this.queue.length) {
+          floor = this.queue.shift()
+          if (this.floor !== floor) {
+            const floorDifference = this.floor - floor
+            this.nextFloor = floor
+            this.moving = true
+            this.translate = 100 * floorDifference
+            this.timeout = Math.abs(floorDifference)
+            await wait(this.timeout * 1000)
+            this.moving = false
+            this.waiting = true
+            this.floor = floor
+            await wait(3000)
+            this.waiting = false
+          }
+        }
       }
+    },
+    isWaiting(i) {
+      return this.queue.includes(i) || i === this.nextFloor && this.moving
     }
-  },
+  }
 }
 </script>
 
@@ -96,6 +139,35 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+}
+.btn {
+  position: relative;
+  width: 23px;
+  height: 23px;
+  background-color: transparent;
+  border: 1px solid var(--color-dark);
+  border-radius: 2px;
+  padding: 0;
+  margin: 0 auto;
+  &__inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%;
+    height: 40%;
+    background-color: var(--color-dark);
+    border-radius: 50%;
+  }
+  &__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  &:hover {
+    background-color: var(--color-semi-grey)
   }
 }
 .elevator {
