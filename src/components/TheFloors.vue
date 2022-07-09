@@ -17,6 +17,7 @@
 import TheElevator from "@/components/TheElevator.vue";
 import TheButton from "@/components/TheButton.vue";
 import { wait } from "@/helpers/wait";
+import { save } from "@/helpers/save";
 
 export default {
   name: "TheFloors",
@@ -47,16 +48,30 @@ export default {
     this.floors = Array.from(Array(this.floorsCount)).map(
       (el, indx) => this.floorsCount - indx
     );
-    this.elevatorsInfo = Array.from(Array(this.elevatorsCount)).map(() => {
-      return {
-        floor: 1,
-        nextFloor: 1,
-        moving: false,
-        waiting: false,
-        translate: 0,
-        timeout: 0,
-      };
-    });
+    this.elevatorsInfo =
+      JSON.parse(localStorage.getItem("elevatorsInfo")) ||
+      Array.from(Array(this.elevatorsCount)).map(() => {
+        return {
+          floor: 1,
+          nextFloor: 1,
+          moving: false,
+          waiting: false,
+          translate: 0,
+          timeout: 0,
+        };
+      });
+    if (localStorage.getItem("elevatorsInfo")) {
+      this.elevatorsInfo = this.elevatorsInfo.map((elevator) => {
+        return {
+          floor: elevator.floor,
+          nextFloor: elevator.floor,
+          moving: false,
+          waiting: false,
+          translate: 0,
+          timeout: 0,
+        };
+      });
+    }
     this.waitingButtons = Array(this.floorsCount).fill(false);
   },
   methods: {
@@ -105,6 +120,7 @@ export default {
       this.elevatorsInfo[indexElevator].moving = false;
       this.elevatorsInfo[indexElevator].waiting = true;
       this.elevatorsInfo[indexElevator].floor = floor;
+      save(this.elevatorsInfo);
       await wait(3000);
       this.elevatorsInfo[indexElevator].waiting = false;
       this.checkUpdates = !this.checkUpdates;

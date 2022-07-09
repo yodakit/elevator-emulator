@@ -1,24 +1,23 @@
 <template>
-  <the-floors :floorsCount="floorsCount" :elevatorsCount="elevatorsCount"/>
+  <the-floors :floorsCount="floorsCount" :elevatorsCount="elevatorsCount" />
 </template>
 
 <script>
-import TheFloors from "@/components/TheFloors.vue"
+import TheFloors from "@/components/TheFloors.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    TheFloors
+    TheFloors,
   },
   data() {
     return {
       floorsCount: 7,
       elevatorsCount: 5,
-    }
+    };
   },
-}
+};
 </script>
 
 <style lang="scss">
-@import './styles/global.scss';
-
+@import "./styles/global.scss";
 </style>
