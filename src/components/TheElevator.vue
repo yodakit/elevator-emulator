@@ -4,8 +4,8 @@
     :style="[
       elevator.moving && {
         transition: `all ${elevator.timeout}s linear`,
-        transform: `translate(0, ${elevator.translate}px`
-      }
+        transform: `translate(0, ${elevator.translate}px`,
+      },
     ]"
   >
     <div v-if="elevator.moving || elevator.waiting" class="elevator__inner">
@@ -29,14 +29,14 @@
 
 <script>
 export default {
-  name: 'TheElevator',
+  name: "TheElevator",
   props: {
     elevator: {
       type: Object,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

@@ -11,8 +11,8 @@ export default {
   },
   data() {
     return {
-      floorsCount: 6,
-      elevatorsCount: 2,
+      floorsCount: 7,
+      elevatorsCount: 5,
     }
   },
 }
