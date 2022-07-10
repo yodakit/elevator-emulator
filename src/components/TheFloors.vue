@@ -1,13 +1,13 @@
 <template>
-  <div v-for="i in floors" :key="i" class="floor">
+  <div v-for="floor in floors" :key="floor" class="floor">
     <div v-for="elevator in elevatorsInfo" :key="elevator" class="floor__cell">
-      <the-elevator v-if="elevator.floor === i" :elevator="elevator" />
+      <the-elevator v-if="elevator.floor === floor" :elevator="elevator" />
     </div>
     <div class="floor__btn">
-      <span>{{ i }}</span>
+      <span>{{ floor }}</span>
       <the-button
-        @click="selectElevator(i)"
-        :isWaiting="waitingButtons[i - 1]"
+        @click="selectElevator(floor)"
+        :isWaiting="waitingButtons[floor - 1]"
       />
     </div>
   </div>
@@ -46,7 +46,7 @@ export default {
   },
   created() {
     this.floors = Array.from(Array(this.floorsCount)).map(
-      (el, indx) => this.floorsCount - indx
+      (_, index) => this.floorsCount - index
     );
     this.elevatorsInfo =
       JSON.parse(localStorage.getItem("elevatorsInfo")) ||
@@ -106,7 +106,7 @@ export default {
           ]);
         }
       }
-      let minIndex = elevatorsMinDifference.sort((a, b) => a[1] - b[1])[0][0];
+      const minIndex = elevatorsMinDifference.sort((a, b) => a[1] - b[1])[0][0];
       this.moveElevator(minIndex, nextFloor);
     },
     async moveElevator(indexElevator, floor) {
